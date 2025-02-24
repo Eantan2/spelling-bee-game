@@ -1,0 +1,121 @@
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import Confetti from "react-confetti";
+import { RefreshCcw } from "lucide-react";
+
+const letters = ["O", "U", "N", "L", "A", "E"];
+const centerLetter = "R"; // Define centerLetter to fix the error
+const validWords = ["ROLE", "RULE", "REAL", "RUNE", "ROAN", "LURE", "NEURAL", "ALONE", "AURAL", "RURAL", "EARN", "LORE", "RULER", "ARENA", "AERO", "NURSE", "REAR", "RARE", "NEURON", "AURORA", "LAUREN"];
+
+export default function SpellingBeeGame() {
+  const [input, setInput] = useState("");
+  const [foundWords, setFoundWords] = useState([]);
+  const [score, setScore] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [bestScore, setBestScore] = useState(0);
+
+  useEffect(() => {
+    const storedScore = localStorage.getItem("bestScore");
+    if (storedScore) {
+      setBestScore(parseInt(storedScore));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (score > bestScore) {
+      setBestScore(score);
+      localStorage.setItem("bestScore", score);
+    }
+  }, [score, bestScore]);
+
+  const handleSubmit = () => {
+    const word = input.toUpperCase();
+    if (word.length >= 4 && word.includes(centerLetter) && validWords.includes(word) && !foundWords.includes(word)) {
+      setFoundWords([...foundWords, word]);
+      setScore(score + word.length);
+      if (word === "LAUREN") {
+        setShowMessage(true);
+      }
+      if (score + word.length >= 50) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000);
+      }
+    }
+    setInput("");
+  };
+
+  const handleDelete = () => {
+    setInput("");
+  };
+
+  const handleRestart = () => {
+    setInput("");
+    setFoundWords([]);
+    setScore(0);
+    setShowMessage(false);
+  };
+
+  return (
+    <div className="flex flex-col items-center p-6 min-h-screen bg-green-200 text-gray-900 relative font-serif">
+      {showConfetti && <Confetti />}
+      <h1 className="text-4xl font-extrabold mb-4 text-green-800">Happy One-Month Anniversary 💚</h1>
+      {showMessage && (
+        <div className="mt-4 p-4 bg-green-600 text-white rounded-lg shadow-lg text-center">
+          <p className="text-lg font-bold">My Lauren, I love you 💖</p>
+        </div>
+      )}
+      <div className="flex flex-col items-center p-6 bg-white rounded-lg shadow-lg border border-green-400">
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="col-span-3 flex justify-center gap-2">
+            <motion.button className="w-16 h-16 text-2xl font-bold bg-green-400 rounded-full shadow-md hover:bg-green-500 transition-all">{letters[0]}</motion.button>
+            <motion.button className="w-16 h-16 text-2xl font-bold bg-green-400 rounded-full shadow-md hover:bg-green-500 transition-all">{letters[1]}</motion.button>
+            <motion.button className="w-16 h-16 text-2xl font-bold bg-green-400 rounded-full shadow-md hover:bg-green-500 transition-all">{letters[2]}</motion.button>
+          </div>
+          <div className="col-span-3 flex justify-center gap-2">
+            <motion.button className="w-16 h-16 text-2xl font-bold bg-green-400 rounded-full shadow-md hover:bg-green-500 transition-all">{letters[3]}</motion.button>
+            <motion.button className="w-16 h-16 text-2xl font-bold bg-green-600 text-white rounded-full shadow-md">{centerLetter}</motion.button>
+            <motion.button className="w-16 h-16 text-2xl font-bold bg-green-400 rounded-full shadow-md hover:bg-green-500 transition-all">{letters[4]}</motion.button>
+          </div>
+          <div className="col-span-3 flex justify-center mt-2">
+            <motion.button className="w-16 h-16 text-2xl font-bold bg-green-400 rounded-full shadow-md hover:bg-green-500 transition-all">{letters[5]}</motion.button>
+          </div>
+        </div>
+        <input
+          className="mt-4 p-3 text-lg text-gray-800 bg-white border-2 border-green-500 rounded-lg focus:ring-2 focus:ring-green-600 outline-none w-3/4"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Enter a word..."
+        />
+        <div className="flex gap-4 mt-4">
+          <motion.button
+            className="border border-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full shadow-md hover:bg-gray-100 transition-all"
+            whileTap={{ scale: 0.95 }}
+            onClick={handleDelete}
+          >
+            Delete
+          </motion.button>
+          <motion.button
+            className="border border-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full shadow-md hover:bg-gray-100 transition-all flex items-center justify-center"
+            whileTap={{ scale: 0.95 }}
+            onClick={handleRestart}
+          >
+            <RefreshCcw className="w-5 h-5" />
+          </motion.button>
+          <motion.button
+            className="border border-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full shadow-md hover:bg-gray-100 transition-all"
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSubmit}
+          >
+            Enter
+          </motion.button>
+        </div>
+      </div>
+      <div className="mt-6 p-4 w-80 bg-white text-gray-900 rounded-lg shadow-lg border border-green-400">
+        <h2 className="text-xl font-bold">Score: {score}</h2>
+        <h3 className="text-lg text-green-700">Best Score: {bestScore}</h3>
+        <p className="text-md mt-2">Words Found: {foundWords.join(", ")}</p>
+      </div>
+    </div>
+  );
+}
